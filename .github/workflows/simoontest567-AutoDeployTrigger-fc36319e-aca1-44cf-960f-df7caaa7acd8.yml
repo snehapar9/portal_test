@@ -1,0 +1,47 @@
+name: Trigger auto deployment for simoontest567
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ main ]
+    paths:
+    - '**'
+    - '.github/workflows/simoontest567-AutoDeployTrigger-fc36319e-aca1-44cf-960f-df7caaa7acd8.yml'
+
+  # Allow manual trigger 
+  workflow_dispatch:      
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions: 
+      id-token: write #This is required for requesting the OIDC JWT Token
+      contents: read #Required when GH token is used to authenticate with private repo
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.SIMOONTEST567_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.SIMOONTEST567_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.SIMOONTEST567_AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }} 
+          registryUrl: 
+          registryUsername: ${{ secrets.SIMOONTEST567_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.SIMOONTEST567_REGISTRY_PASSWORD }}
+          containerAppName: simoontest567
+          resourceGroup: simonj
+          imageToBuild: default/[parameters('containerAppName')]:${{ github.sha }}
+          _buildArgumentsKey_: |
+            _buildArgumentsValues_
+
+
