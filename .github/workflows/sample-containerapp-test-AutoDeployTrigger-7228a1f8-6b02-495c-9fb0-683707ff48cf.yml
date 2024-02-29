@@ -31,6 +31,15 @@ jobs:
           tenant-id: ${{ secrets.SAMPLECONTAINERAPPTEST_AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.SAMPLECONTAINERAPPTEST_AZURE_SUBSCRIPTION_ID }}
 
+      - name: Clone test repo with azure-cli-extensions whl
+        uses: actions/checkout@v3
+        with: 
+         repository: snehapar9/test
+         path: azure-cli-extensions
+      
+      - name: Install latest azure-cli-extensions whl
+        run: az extension add -y --source '${{ github.workspace }}/azure-cli-extensions/containerapp-0.3.47-py2.py3-none-any.whl'
+
       - name: Build and push container image to registry
         uses: azure/container-apps-deploy-action@v2
         with:
